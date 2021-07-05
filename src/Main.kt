@@ -1,8 +1,6 @@
 package com.george
 
-import com.george.Models.Location
-import com.george.Models.User
-import com.google.gson.Gson
+import com.george.Application.UserRoutes.UserRoutes.usersRoutes
 import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.server.netty.EngineMain
@@ -26,7 +24,9 @@ fun Application.module(testing: Boolean = false) {
 
     routing {
 
-        var users = generateRandomUsers()
+        usersRoutes()
+
+        /*val users = generateRandomUsers()
 
         get("/") {
             call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
@@ -40,45 +40,37 @@ fun Application.module(testing: Boolean = false) {
         }
 
         get("/users/{id}") {
-            val id = call.parameters["id"] ?: return@get call.respondText("pad request",status = HttpStatusCode.BadRequest)
+            val id =
+                call.parameters["id"] ?: return@get call.respondText("pad request", status = HttpStatusCode.BadRequest)
             val user = users.find {
                 it.uid == id
-            } ?: return@get call.respondText("Not Found",status = HttpStatusCode.NotFound)
+            } ?: return@get call.respondText("Not Found")
             call.respond(
                 status = HttpStatusCode.OK,
                 message = Gson().toJson(user)
             )
         }
 
-        delete("/users/{id}") {
-            val id = call.parameters["id"] ?: return@delete call.respondText("pad request",status = HttpStatusCode.BadRequest)
-            val user = users.find {
-                it.uid == id
-            } ?: return@delete call.respondText("Not Found",status = HttpStatusCode.NotFound)
-            if (users.removeIf { it == user}) {
-                call.respondText ("Deleted ${user.name}")
-            }
+        post {
+            val user = call.receive<User>()
+            users.add(user)
+            call.respondText("Customer stored correctly", status = HttpStatusCode.Created)
         }
 
-    }
-}
-
-fun generateRandomUsers(): MutableList<User> {
-    val users = mutableListOf<User>()
-    for (i in 1..11) {
-        users.add(
-            User(
-                "$i",
-                "user num $i",
-                "user_$i@gamil.com",
-                "010-0000-00$i",
-                Location(
-                    lat = 21.05248495,
-                    long = 32.89951685
-                )
+        delete("/users/{id}") {
+            val id = call.parameters["id"] ?: return@delete call.respondText(
+                "pad request",
+                status = HttpStatusCode.BadRequest
             )
-        )
+            val user = users.find {
+                it.uid == id
+            } ?: return@delete call.respondText("Not Found", status = HttpStatusCode.NotFound)
+            if (users.removeIf { it == user }) {
+                call.respondText("Deleted ${user.name}")
+            }
+        }*/
+
     }
-    return users
+
 }
 
