@@ -12,10 +12,10 @@ object Constants {
 
     fun generateRandomUsers(): MutableList<User> {
         val users = mutableListOf<User>()
-        for (i in 1..11) {
+        for (i in 1..30) {
             users.add(
                 User(
-                    "$i",
+                    i,
                     "user num $i",
                     "user_${i*7}@gmail.com",
                     "${randomProvider()}${randomPhoneNumber()}",

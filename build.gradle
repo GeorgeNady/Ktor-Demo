@@ -1,15 +1,18 @@
 buildscript {
     repositories {
         jcenter()
+        mavenCentral()
     }
     
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
     }
 }
 
 apply plugin: 'kotlin'
 apply plugin: 'application'
+apply plugin: 'kotlinx-serialization'
 
 group 'com.george'
 version '0.0.1'
@@ -40,4 +43,6 @@ dependencies {
 //    implementation "org.mongodb:mongodb-driver:$mongodb_version"
     implementation "org.mongodb:mongodb-driver:3.6.3"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1"
+
 }

@@ -28,17 +28,6 @@ fun Application.module(testing: Boolean = false) {
 
         /*val users = generateRandomUsers()
 
-        get("/") {
-            call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
-        }
-
-        get("/users") {
-            call.respond(
-                status = HttpStatusCode.OK,
-                message = Gson().toJson(users)
-            )
-        }
-
         get("/users/{id}") {
             val id =
                 call.parameters["id"] ?: return@get call.respondText("pad request", status = HttpStatusCode.BadRequest)
