@@ -1,4 +1,4 @@
-package com.george.Models
+package com.george.Models.User
 import kotlinx.serialization.Serializable
 
 

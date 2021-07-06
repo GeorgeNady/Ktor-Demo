@@ -1,7 +1,7 @@
 package com.george.utiles
 
-import com.george.Models.Location
-import com.george.Models.User
+import com.george.Models.User.Location
+import com.george.Models.User.User
 import kotlin.random.Random
 
 object Constants {
@@ -17,7 +17,7 @@ object Constants {
                 User(
                     i,
                     "user num $i",
-                    "user_${i*7}@gmail.com",
+                    "user_${i*2}@gmail.com",
                     "${randomProvider()}${randomPhoneNumber()}",
                     Location(
                         lat = 21.05248495,

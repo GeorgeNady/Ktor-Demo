@@ -1,9 +1,14 @@
 package com.george.Application.UserRoutes
 
-import com.george.Models.User
-import com.george.utiles.Constants
+import com.george.Models.User.User
+import com.george.data.mongo.MongoDataService
 import com.george.utiles.Constants.generateRandomUsers
-import com.google.gson.Gson
+import com.george.utiles.ExtensionFunctionHelper.toJson
+import com.george.utiles.StatusCodesHelper.HttpBadRequest
+import com.george.utiles.StatusCodesHelper.HttpCreated
+import com.george.utiles.StatusCodesHelper.HttpNotFound
+import com.george.utiles.StatusCodesHelper.HttpOk
+import com.george.utiles.StatusCodesHelper.application_json
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -13,15 +18,6 @@ import io.ktor.routing.*
 object UserRoutes {
 
     private val users = generateRandomUsers()
-
-    private val HttpOk : HttpStatusCode = HttpStatusCode.OK
-    private val HttpCreated : HttpStatusCode = HttpStatusCode.Created
-    private val HttpNotFound : HttpStatusCode = HttpStatusCode.NotFound
-    private val HttpBadRequest : HttpStatusCode = HttpStatusCode.BadRequest
-
-    private val application_json = ContentType.Application.Json
-
-    private fun Any.toJson() = Gson().toJson(this)
 
     fun Route.usersRoutes() {
 
