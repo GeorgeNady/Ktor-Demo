@@ -15,14 +15,6 @@ class MongoDataService(mongoClient: MongoClient, database: String) {
 
     private val database = mongoClient.getDatabase(database)
 
-    companion object {
-        val mongoDataService = MongoDataService(
-            MongoClient(),
-            "ktor_db"
-        )
-
-    }
-
     fun allFromCollection(collection:String) : MutableList<Map<String, Any>> {
         val mongoResult  = database.getCollection(collection, Document::class.java)
         val result = ArrayList<Map<String, Any>>()
@@ -110,5 +102,8 @@ class MongoDataService(mongoClient: MongoClient, database: String) {
         }
     }
 
+    companion object {
+        val mongoDataService = MongoDataService(MongoClient(),"ktor_db")
+    }
 
 }

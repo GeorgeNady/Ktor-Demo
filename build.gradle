@@ -45,4 +45,9 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1"
     implementation "io.github.cdimascio:dotenv-kotlin:6.2.2"
 
+    // Authentication
+    implementation "io.ktor:ktor-auth:$ktor_version"
+    implementation "io.ktor:ktor-auth-jwt:$ktor_version"
+
+
 }
