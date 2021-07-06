@@ -26,7 +26,7 @@ object PersonsRoutes {
 
     fun Route.personsRoutes(db: MongoDataService) {
 
-        val mappedPersons = db.allFromCollection("persons")
+
 
         route("/persons") {
 
@@ -42,16 +42,19 @@ object PersonsRoutes {
 
             get {
 
+                val mappedPersons = db.allFromCollection("persons")
 
                 val persons = mutableListOf<Person>()
+
                 mappedPersons.forEach {
-                    val thisPerson = Person(
-                        _id = it.getMapValue("_id"),
-                        name = it.getMapValue("name"),
-                        email = it.getMapValue("email"),
-                        phone = it.getMapValue("phone"),
+                    persons.add(
+                        Person(
+                            _id = it.getMapValue("_id"),
+                            name = it.getMapValue("name"),
+                            email = it.getMapValue("email"),
+                            phone = it.getMapValue("phone"),
+                        )
                     )
-                    persons.add(thisPerson)
                 }
 
                 val personResponse = PersonResponse(
@@ -81,11 +84,11 @@ object PersonsRoutes {
                         email = docs.getMapValue("email"),
                         phone = docs.getMapValue("phone"),
                     )
-                    val personResponses = personResponse(true, mutableListOf(person),"")
-                    call.respondJsonResponse(personResponses,HttpCreated)
+                    val personResponses = personResponse(true, mutableListOf(person), "")
+                    call.respondJsonResponse(personResponses, HttpCreated)
                 } else {
-                    val personResponses = personResponse(false, mutableListOf(),"this id not found 404")
-                    call.respondJsonResponse(personResponses,HttpNotFound)
+                    val personResponses = personResponse(false, mutableListOf(), "this id not found 404")
+                    call.respondJsonResponse(personResponses, HttpNotFound)
                 }
             }
 
@@ -128,7 +131,7 @@ object PersonsRoutes {
             delete("/{id}") {
                 val id: String? = call.parameters["id"]
                 val (updatedRecords, message) =
-                    db.deleteDocument("col", id)
+                    db.deleteDocument("persons", id)
                 when (updatedRecords) {
                     0 -> call.respond(HttpNotFound, message)
                     1 -> call.respond(HttpNoContent)
@@ -141,7 +144,6 @@ object PersonsRoutes {
 
     private fun personResponse(success:Boolean,persons:MutableList<Person>,message:String) =
         PersonResponse(success,persons,message)
-
 
 
 }
