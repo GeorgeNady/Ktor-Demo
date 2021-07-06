@@ -67,6 +67,44 @@ class MongoDataService(mongoClient: MongoClient, database: String) {
         return asMap
     }
 
+    fun updateExistingDocument(
+        collection: String,
+        id: String?,
+        document: String
+    ): Pair<Int, String> {
+        try {
+            if (!ObjectId.isValid(id)) {
+                return Pair(0, "ID not found")
+            }
+            val bsonDocument = BsonDocument.parse(document)
+            bsonDocument.remove("_id")
+            val filter = BsonDocument("_id", BsonObjectId(ObjectId(id)))
+            val updatedValues =
+                database.getCollection(collection, BsonDocument::class.java)
+                    .replaceOne(filter, bsonDocument).modifiedCount
+            return if (updatedValues < 1) {
+                Pair(0, "ID not found")
+            } else {
+                Pair(1, "success")
+            }
+        } catch (ex: JsonParseException) {
+            return Pair(-1, "Invalid JSON: ${ex.localizedMessage}")
+        }
+    }
+
+    fun deleteDocument(collection: String, id: String?): Pair<Int, String> {
+        if (!ObjectId.isValid(id)) {
+            return Pair(0, "ID not found")
+        }
+        val filter = BsonDocument("_id", BsonObjectId(ObjectId(id)))
+        val updatedValues = database.getCollection(collection)
+            .deleteOne(filter).deletedCount
+        return if (updatedValues < 1) {
+            Pair(0, "ID not found")
+        } else {
+            Pair(1, "success")
+        }
+    }
 
 
 }

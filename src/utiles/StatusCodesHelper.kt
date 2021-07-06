@@ -10,6 +10,7 @@ object StatusCodesHelper {
     val HttpBadRequest : HttpStatusCode = HttpStatusCode.BadRequest
     val HttpUnauthorized : HttpStatusCode = HttpStatusCode.Unauthorized
     val HttpForbidden : HttpStatusCode = HttpStatusCode.Forbidden
+    val HttpNoContent : HttpStatusCode = HttpStatusCode.NoContent
 
     val application_json = ContentType.Application.Json
 

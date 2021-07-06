@@ -11,6 +11,7 @@ import com.george.utiles.ExtensionFunctionHelper.toJson
 import com.george.utiles.StatusCodesHelper.HttpBadRequest
 import com.george.utiles.StatusCodesHelper.HttpCreated
 import com.george.utiles.StatusCodesHelper.HttpForbidden
+import com.george.utiles.StatusCodesHelper.HttpNoContent
 import com.george.utiles.StatusCodesHelper.HttpNotFound
 import com.george.utiles.StatusCodesHelper.HttpOk
 import com.george.utiles.StatusCodesHelper.HttpUnauthorized
@@ -109,6 +110,28 @@ object PersonsRoutes {
                     val personResponse = personResponse(false, mutableListOf(),"$oidOrErrorMessage -- bad Request")
 
                     call.respondJsonResponse(personResponse,HttpBadRequest)
+                }
+            }
+
+            patch("/{id}") {
+                val id: String? = call.parameters["id"]
+                val documentAsString = call.receiveText()
+                val (updatedRecords, message) =
+                    db.updateExistingDocument("persons", id, documentAsString)
+                when (updatedRecords) {
+                    -1 -> call.respond(HttpBadRequest, message)
+                    0 -> call.respond(HttpNotFound, message)
+                    1 -> call.respond(HttpNoContent)
+                }
+            }
+
+            delete("/{id}") {
+                val id: String? = call.parameters["id"]
+                val (updatedRecords, message) =
+                    db.deleteDocument("col", id)
+                when (updatedRecords) {
+                    0 -> call.respond(HttpNotFound, message)
+                    1 -> call.respond(HttpNoContent)
                 }
             }
 
