@@ -43,5 +43,6 @@ dependencies {
     implementation "org.mongodb:mongodb-driver:3.6.3"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1"
+    implementation "io.github.cdimascio:dotenv-kotlin:6.2.2"
 
 }
