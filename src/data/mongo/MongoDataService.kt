@@ -7,6 +7,10 @@ import org.bson.Document
 import org.bson.json.JsonParseException
 import org.bson.types.ObjectId
 
+/**
+ * # Resources
+ * **You can see the visit this web site for more information** [link](https://polyglot-phil.com/kotlin/mongo/rest/ktor/2019/03/24/kotlin-mongodb-rest-webservice.html)
+ * */
 class MongoDataService(mongoClient: MongoClient, database: String) {
 
     private val database = mongoClient.getDatabase(database)
