@@ -45,10 +45,10 @@ object PersonsRoutes {
                 val persons = mutableListOf<Person>()
                 mappedPersons.forEach {
                     val thisPerson = Person(
-                        _id = it.getValue("_id") as String,
-                        name = it.getValue("name") as String,
-                        email = it.getValue("email") as String,
-                        phone = it.getValue("phone") as String,
+                        _id = it.getMapValue("_id"),
+                        name = it.getMapValue("name"),
+                        email = it.getMapValue("email"),
+                        phone = it.getMapValue("phone"),
                     )
                     persons.add(thisPerson)
                 }
@@ -72,20 +72,19 @@ object PersonsRoutes {
                 val id: String? = call.parameters["id"]
                 val docs = db.getDocumentById("persons", id)
 
-                val persons = mutableListOf<Person>()
-                val thisPerson = Person(
-                    _id = docs?.getMapValue("_id"),
-                    name = docs!!.getMapValue("name"),
-                    email = docs.getMapValue("email"),
-                    phone = docs.getMapValue("phone"),
 
-                )
-                persons.add(thisPerson)
-
-                if (docs != null) {
-                    call.respond(docs)
+                if (docs!!.isNotEmpty()) {
+                    val person = Person(
+                        _id = docs.getMapValue("_id"),
+                        name = docs.getMapValue("name"),
+                        email = docs.getMapValue("email"),
+                        phone = docs.getMapValue("phone"),
+                    )
+                    val personResponses = personResponse(true, mutableListOf(person),"")
+                    call.respondJsonResponse(personResponses,HttpCreated)
                 } else {
-                    call.respond(HttpNotFound)
+                    val personResponses = personResponse(false, mutableListOf(),"this id not found 404")
+                    call.respondJsonResponse(personResponses,HttpNotFound)
                 }
             }
 

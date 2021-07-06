@@ -15,7 +15,7 @@ object ExtensionFunctionHelper {
 
     fun <T> Map<String,Any>.getMapValue(key:String) : T {
         try {
-            this.getValue(key) as T
+            return this.getValue(key) as T
         } catch (e: Exception) {
             println("Error: $e")
         }
