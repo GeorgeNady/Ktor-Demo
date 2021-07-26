@@ -2,10 +2,8 @@ package com.george
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.george.Routes.AuthRoutes.authRoutes
-import com.george.Routes.PersonsRoutes.personsRoutes
 import com.george.data.mongo.MongoDataService.Companion.mongoDataService
 import com.george.utiles.ExtensionFunctionHelper.respondJsonResponse
-import com.george.utiles.JwtService
 import com.george.utiles.StatusCodesHelper.HTTP_OK
 import io.ktor.application.*
 import io.ktor.server.netty.EngineMain
@@ -39,8 +37,6 @@ fun Application.module(testing: Boolean = false) {
         }
 
         authRoutes(mongoDataService)
-
-        personsRoutes(mongoDataService)
 
     }
 

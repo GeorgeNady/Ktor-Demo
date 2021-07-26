@@ -3,11 +3,10 @@ package com.george.Routes
 import com.george.Models.Person.AuthRequests.LoginRequest
 import com.george.Models.Person.users.User
 import com.george.Models.Person.AuthRequests.RegisterRequest
-import com.george.Models.Person.SimpleResponse
+import com.george.Models.Person.AuthRequests.SimpleResponse
 import com.george.data.mongo.MongoDataService
 import com.george.utiles.ExtensionFunctionHelper.respondJsonResponse
 import com.george.utiles.ExtensionFunctionHelper.toJson
-import com.george.utiles.JwtService
 import com.george.utiles.JwtService.createHash
 import com.george.utiles.JwtService.generatorToken
 import com.george.utiles.StatusCodesHelper.HTTP_BAD_REQUEST
@@ -39,7 +38,6 @@ object AuthRoutes {
     fun Route.authRoutes(db: MongoDataService) {
 
 
-
         ////////////////////////////////////////////////////////////
         ///////////////////// REGISTER_REQUEST /////////////////////
         ////////////////////////////////////////////////////////////
@@ -47,7 +45,10 @@ object AuthRoutes {
             val requestRequest = try {
                 call.receive<RegisterRequest>()
             } catch (e: Exception) {
-                call.respondJsonResponse(SimpleResponse(false, "mMissing Some Fields"), HTTP_BAD_REQUEST)
+                call.respondJsonResponse(
+                    SimpleResponse(false, user = null, message = "Missing Some Fields"),
+                    HTTP_BAD_REQUEST
+                )
                 return@post
             }
 
@@ -61,12 +62,14 @@ object AuthRoutes {
             if (ObjectId.isValid(oidOrErrorMessage)) {
                 val registerResponse = SimpleResponse(
                     success = true,
+                    user = user,
                     message = generatorToken(user)
                 )
                 call.respondJsonResponse(registerResponse, HTTP_CREATED)
             } else {
                 val registerResponse = SimpleResponse(
                     success = false,
+                    user = null,
                     message = "$oidOrErrorMessage -- bad Request"
                 )
                 call.respondJsonResponse(registerResponse, HTTP_CONFLICT)
@@ -80,17 +83,20 @@ object AuthRoutes {
         post<AuthLoginRoute> {
             val loginRequest = try {
                 call.receive<LoginRequest>()
-            } catch (e:Exception) {
-                call.respondJsonResponse(SimpleResponse(false, "mMissing Some Fields"), HTTP_BAD_REQUEST)
+            } catch (e: Exception) {
+                call.respondJsonResponse(
+                    SimpleResponse(success = false, user = null, message = "mMissing Some Fields"),
+                    HTTP_BAD_REQUEST
+                )
                 return@post
             }
 
-            val doc = db.getDocumentByEmail(USERS_COLLECTION,loginRequest.email)
+            val doc = db.getDocumentByEmail(USERS_COLLECTION, loginRequest.email)
             println("loginResponse: $doc")
 
             if (doc == null) {
                 call.respondJsonResponse(
-                    SimpleResponse(false,"Wrong Email"),
+                    SimpleResponse(success = false, user = null, message = "Wrong Email"),
                     HTTP_BAD_REQUEST
                 )
             } else {
@@ -103,12 +109,12 @@ object AuthRoutes {
                 )
                 if (user.hashPassword == createHash(loginRequest.password)) {
                     call.respondJsonResponse(
-                        SimpleResponse(true, generatorToken(user)),
+                        SimpleResponse(success = true, user = user, message = generatorToken(user)),
                         HTTP_OK
                     )
                 } else {
                     call.respondJsonResponse(
-                        SimpleResponse(false, "Wrong Password"),
+                        SimpleResponse(success = false, user = null, message = "Wrong Password"),
                         HTTP_BAD_REQUEST
                     )
                 }
