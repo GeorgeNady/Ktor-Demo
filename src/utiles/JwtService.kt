@@ -3,18 +3,14 @@ package com.george.utiles
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
+import com.george.Models.Person.AuthRequests.RegisterRequest
 import com.george.Models.Person.users.User
-import com.george.Models.Person.users.UserBody
-import com.george.Models.User.Customer.Person
 import io.ktor.util.*
-import io.ktor.utils.io.core.*
-import java.nio.charset.Charset
-import java.util.*
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.text.toByteArray
 
-class JwtService {
+object JwtService {
 
     /**
      * # Claims
@@ -43,12 +39,11 @@ class JwtService {
         .withIssuer(issuer)
         .build()
 
-    fun generatorToken(user:UserBody) =
+    fun generatorToken(user: User) =
         JWT.create()
             .withSubject("WeCanTypeAnySubject")
             .withIssuer(issuer)
             .withClaim("email",user.email)
-            .withClaim("username",user.username)
             /*.withExpiresAt(Date(System.currentTimeMillis() + 60000))*/
             .sign(algorithm)!!
 

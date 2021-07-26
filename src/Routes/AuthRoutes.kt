@@ -1,80 +1,124 @@
 package com.george.Routes
 
-import com.george.Models.Person.PersonResponse
+import com.george.Models.Person.AuthRequests.LoginRequest
 import com.george.Models.Person.users.User
-import com.george.Models.Person.users.UserBody
-import com.george.Models.Person.users.UserResponse
-import com.george.Models.User.Customer.Person
-import com.george.data.mongo.AuthenticationException
-import com.george.data.mongo.AuthorizationException
+import com.george.Models.Person.AuthRequests.RegisterRequest
+import com.george.Models.Person.SimpleResponse
 import com.george.data.mongo.MongoDataService
 import com.george.utiles.ExtensionFunctionHelper.respondJsonResponse
 import com.george.utiles.ExtensionFunctionHelper.toJson
 import com.george.utiles.JwtService
-import com.george.utiles.StatusCodesHelper
-import com.george.utiles.StatusCodesHelper.HttpBadRequest
-import com.george.utiles.StatusCodesHelper.HttpCreated
-import com.george.utiles.StatusCodesHelper.HttpForbidden
-import com.george.utiles.StatusCodesHelper.HttpOk
-import com.george.utiles.StatusCodesHelper.HttpUnauthorized
+import com.george.utiles.JwtService.createHash
+import com.george.utiles.JwtService.generatorToken
+import com.george.utiles.StatusCodesHelper.HTTP_BAD_REQUEST
+import com.george.utiles.StatusCodesHelper.HTTP_CONFLICT
+import com.george.utiles.StatusCodesHelper.HTTP_CREATED
+import com.george.utiles.StatusCodesHelper.HTTP_OK
 import io.ktor.application.*
-import io.ktor.features.*
+import io.ktor.locations.*
 import io.ktor.request.*
-import io.ktor.response.*
 import io.ktor.routing.*
 import org.bson.types.ObjectId
 
 object AuthRoutes {
 
+    const val API_VERSION = "/api/v1"
+    const val AUTH = "$API_VERSION/auth"
+    const val REGISTER_REQUEST = "$AUTH/register"
+    const val LOGIN_REQUEST = "$AUTH/login"
+
+    const val USERS_COLLECTION = "users"
+
+    @Location(REGISTER_REQUEST)
+    class AuthRegisterRoute
+
+    @Location(LOGIN_REQUEST)
+    class AuthLoginRoute
+
+
     fun Route.authRoutes(db: MongoDataService) {
 
-        route("/api/auth") {
 
-            install(StatusPages) {
-                exception<AuthenticationException> {
-                    call.respond(HttpUnauthorized)
-                }
-                exception<AuthorizationException> {
-                    call.respond(HttpForbidden)
-                }
+
+        ////////////////////////////////////////////////////////////
+        ///////////////////// REGISTER_REQUEST /////////////////////
+        ////////////////////////////////////////////////////////////
+        post<AuthRegisterRoute> {
+            val requestRequest = try {
+                call.receive<RegisterRequest>()
+            } catch (e: Exception) {
+                call.respondJsonResponse(SimpleResponse(false, "mMissing Some Fields"), HTTP_BAD_REQUEST)
+                return@post
             }
 
-            post("/register") {
-                val userBody = call.receive<UserBody>()
-                // Check username and password
-                // ...
-                val user = User(
-                    username = userBody.username,
-                    email = userBody.email,
-                    phone = userBody.phone,
-                    token = JwtService().generatorToken(userBody),
-                    password = JwtService().createHash(userBody.password)
+            val user = User(
+                username = requestRequest.username,
+                email = requestRequest.email,
+                phone = requestRequest.phone,
+                hashPassword = createHash(requestRequest.password)
+            )
+            val oidOrErrorMessage = db.saveNewDocument(USERS_COLLECTION, user.toJson())
+            if (ObjectId.isValid(oidOrErrorMessage)) {
+                val registerResponse = SimpleResponse(
+                    success = true,
+                    message = generatorToken(user)
                 )
-                val oidOrErrorMessage = db.saveNewDocument("users", user.toJson())
-                if (ObjectId.isValid(oidOrErrorMessage)) {
-                    val authRespond = authRespond(
-                        success = true,
-                        user = user,
-                        message = "$oidOrErrorMessage -- created"
-                    )
-                    call.respondJsonResponse(authRespond, HttpCreated)
-                } else {
-                    val authRespond = authRespond(false, user, "$oidOrErrorMessage -- bad Request")
-                    call.respondJsonResponse(authRespond, HttpBadRequest)
-                }
+                call.respondJsonResponse(registerResponse, HTTP_CREATED)
+            } else {
+                val registerResponse = SimpleResponse(
+                    success = false,
+                    message = "$oidOrErrorMessage -- bad Request"
+                )
+                call.respondJsonResponse(registerResponse, HTTP_CONFLICT)
             }
-
-            post("/login") {
-
-            }
-
 
         }
 
-    }
+        ////////////////////////////////////////////////////////////
+        ////////////////////// LOGIN_REQUEST ///////////////////////
+        ////////////////////////////////////////////////////////////
+        post<AuthLoginRoute> {
+            val loginRequest = try {
+                call.receive<LoginRequest>()
+            } catch (e:Exception) {
+                call.respondJsonResponse(SimpleResponse(false, "mMissing Some Fields"), HTTP_BAD_REQUEST)
+                return@post
+            }
 
-    private fun authRespond(success:Boolean, user:User, message:String) =
-        UserResponse(success,user,message)
+            val doc = db.getDocumentByEmail(USERS_COLLECTION,loginRequest.email)
+            println("loginResponse: $doc")
+
+            if (doc == null) {
+                call.respondJsonResponse(
+                    SimpleResponse(false,"Wrong Email"),
+                    HTTP_BAD_REQUEST
+                )
+            } else {
+
+                val user = User(
+                    username = doc.getValue("username").toString(),
+                    email = doc.getValue("email").toString(),
+                    phone = doc.getValue("phone").toString(),
+                    hashPassword = doc.getValue("hashPassword").toString()
+                )
+                if (user.hashPassword == createHash(loginRequest.password)) {
+                    call.respondJsonResponse(
+                        SimpleResponse(true, generatorToken(user)),
+                        HTTP_OK
+                    )
+                } else {
+                    call.respondJsonResponse(
+                        SimpleResponse(false, "Wrong Password"),
+                        HTTP_BAD_REQUEST
+                    )
+                }
+
+            }
+
+        }
+
+
+    }
 
 
 }

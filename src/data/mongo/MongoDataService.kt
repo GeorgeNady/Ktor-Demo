@@ -37,6 +37,15 @@ class MongoDataService(mongoClient: MongoClient, database: String) {
         return null
     }
 
+    fun getDocumentByEmail(collection: String, email: String?): Map<String, Any>? {
+        val document = database.getCollection(collection)
+            .find(Document("email", email))
+        if (document?.first() != null) {
+            return mongoDocumentToMap(document.first())
+        }
+        return null
+    }
+
     fun saveNewDocument(collection: String, document: String): String {
         return try {
             val bsonDocument = BsonDocument.parse(document)

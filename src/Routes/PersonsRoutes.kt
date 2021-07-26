@@ -1,20 +1,18 @@
 package com.george.Routes
 
-import com.george.Models.Person.PersonResponse
-import com.george.Models.User.Customer.Person
 import com.george.data.mongo.AuthenticationException
 import com.george.data.mongo.AuthorizationException
 import com.george.data.mongo.MongoDataService
 import com.george.utiles.ExtensionFunctionHelper.getMapValue
 import com.george.utiles.ExtensionFunctionHelper.respondJsonResponse
 import com.george.utiles.ExtensionFunctionHelper.toJson
-import com.george.utiles.StatusCodesHelper.HttpBadRequest
-import com.george.utiles.StatusCodesHelper.HttpCreated
-import com.george.utiles.StatusCodesHelper.HttpForbidden
-import com.george.utiles.StatusCodesHelper.HttpNoContent
-import com.george.utiles.StatusCodesHelper.HttpNotFound
-import com.george.utiles.StatusCodesHelper.HttpOk
-import com.george.utiles.StatusCodesHelper.HttpUnauthorized
+import com.george.utiles.StatusCodesHelper.HTTP_BAD_REQUEST
+import com.george.utiles.StatusCodesHelper.HTTP_CREATED
+import com.george.utiles.StatusCodesHelper.HTTP_FORBIDDEN
+import com.george.utiles.StatusCodesHelper.HTTP_NO_CONTENT
+import com.george.utiles.StatusCodesHelper.HTTP_NOT_FOUND
+import com.george.utiles.StatusCodesHelper.HTTP_OK
+import com.george.utiles.StatusCodesHelper.HTTP_UNAUTHORIZED
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.request.*
@@ -32,10 +30,10 @@ object PersonsRoutes {
 
             install(StatusPages) {
                 exception<AuthenticationException> {
-                    call.respond(HttpUnauthorized)
+                    call.respond(HTTP_UNAUTHORIZED)
                 }
                 exception<AuthorizationException> {
-                    call.respond(HttpForbidden)
+                    call.respond(HTTP_FORBIDDEN)
                 }
 
             }
@@ -62,7 +60,7 @@ object PersonsRoutes {
                     persons = persons,
                     message = "all persons result : ${mappedPersons.size}"
                 )
-                call.respondJsonResponse(personResponse,HttpOk)
+                call.respondJsonResponse(personResponse,HTTP_OK)
 
                 /*call.respondText(
                     text = personResponse.toJson(),
@@ -85,10 +83,10 @@ object PersonsRoutes {
                         phone = docs.getMapValue("phone"),
                     )
                     val personResponses = personResponse(true, mutableListOf(person), "")
-                    call.respondJsonResponse(personResponses, HttpCreated)
+                    call.respondJsonResponse(personResponses, HTTP_CREATED)
                 } else {
                     val personResponses = personResponse(false, mutableListOf(), "this id not found 404")
-                    call.respondJsonResponse(personResponses, HttpNotFound)
+                    call.respondJsonResponse(personResponses, HTTP_NOT_FOUND)
                 }
             }
 
@@ -106,13 +104,13 @@ object PersonsRoutes {
                         "$oidOrErrorMessage -- created"
                     )
 
-                    call.respondJsonResponse(personResponse,HttpCreated)
+                    call.respondJsonResponse(personResponse,HTTP_CREATED)
 
                 } else {
 
                     val personResponse = personResponse(false, mutableListOf(),"$oidOrErrorMessage -- bad Request")
 
-                    call.respondJsonResponse(personResponse,HttpBadRequest)
+                    call.respondJsonResponse(personResponse,HTTP_BAD_REQUEST)
                 }
             }
 
@@ -122,9 +120,9 @@ object PersonsRoutes {
                 val (updatedRecords, message) =
                     db.updateExistingDocument("persons", id, documentAsString)
                 when (updatedRecords) {
-                    -1 -> call.respond(HttpBadRequest, message)
-                    0 -> call.respond(HttpNotFound, message)
-                    1 -> call.respond(HttpNoContent)
+                    -1 -> call.respond(HTTP_BAD_REQUEST, message)
+                    0 -> call.respond(HTTP_NOT_FOUND, message)
+                    1 -> call.respond(HTTP_NO_CONTENT)
                 }
             }
 
@@ -133,8 +131,8 @@ object PersonsRoutes {
                 val (updatedRecords, message) =
                     db.deleteDocument("persons", id)
                 when (updatedRecords) {
-                    0 -> call.respond(HttpNotFound, message)
-                    1 -> call.respond(HttpNoContent)
+                    0 -> call.respond(HTTP_NOT_FOUND, message)
+                    1 -> call.respond(HTTP_NO_CONTENT)
                 }
             }
 

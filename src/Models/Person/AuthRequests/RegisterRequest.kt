@@ -1,9 +1,9 @@
-package com.george.Models.Person.users
+package com.george.Models.Person.AuthRequests
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserBody(
+data class RegisterRequest(
     val username: String,
     val email: String,
     val password: String,
