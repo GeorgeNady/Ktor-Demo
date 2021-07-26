@@ -52,13 +52,20 @@ object AuthRoutes {
                 return@post
             }
 
-            val user = User(
+            val doc = User(
                 username = requestRequest.username,
                 email = requestRequest.email,
                 phone = requestRequest.phone,
                 hashPassword = createHash(requestRequest.password)
             )
-            val oidOrErrorMessage = db.saveNewDocument(USERS_COLLECTION, user.toJson())
+            val oidOrErrorMessage = db.saveNewDocument(USERS_COLLECTION, doc.toJson())
+            val user = User(
+                id = oidOrErrorMessage,
+                username = requestRequest.username,
+                email = requestRequest.email,
+                phone = requestRequest.phone,
+                hashPassword = createHash(requestRequest.password)
+            )
             if (ObjectId.isValid(oidOrErrorMessage)) {
                 val registerResponse = SimpleResponse(
                     success = true,
@@ -102,6 +109,7 @@ object AuthRoutes {
             } else {
 
                 val user = User(
+                    id = doc.getValue("_id").toString(),
                     username = doc.getValue("username").toString(),
                     email = doc.getValue("email").toString(),
                     phone = doc.getValue("phone").toString(),
