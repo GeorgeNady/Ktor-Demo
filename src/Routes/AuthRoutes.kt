@@ -5,6 +5,7 @@ import com.george.Models.Person.users.User
 import com.george.Models.Person.AuthRequests.RegisterRequest
 import com.george.Models.Person.AuthRequests.SimpleResponse
 import com.george.data.mongo.MongoDataService
+import com.george.utiles.Constants.USERS_COLLECTION
 import com.george.utiles.ExtensionFunctionHelper.respondJsonResponse
 import com.george.utiles.ExtensionFunctionHelper.toJson
 import com.george.utiles.JwtService.createHash
@@ -25,8 +26,6 @@ object AuthRoutes {
     const val AUTH = "$API_VERSION/auth"
     const val REGISTER_REQUEST = "$AUTH/register"
     const val LOGIN_REQUEST = "$AUTH/login"
-
-    const val USERS_COLLECTION = "users"
 
     @Location(REGISTER_REQUEST)
     class AuthRegisterRoute
