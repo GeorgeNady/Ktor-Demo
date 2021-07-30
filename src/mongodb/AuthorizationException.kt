@@ -1,3 +1,3 @@
-package com.george.data.mongo
+package com.george.mongodb
 
 class AuthorizationException : RuntimeException()

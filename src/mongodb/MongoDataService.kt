@@ -1,4 +1,4 @@
-package com.george.data.mongo
+package com.george.mongodb
 
 import com.mongodb.MongoClient
 import org.bson.BsonDocument
@@ -19,6 +19,21 @@ class MongoDataService(mongoClient: MongoClient, database: String) {
         val mongoResult  = database.getCollection(collection, Document::class.java)
         val result = ArrayList<Map<String, Any>>()
         mongoResult.find().forEach { doc ->
+            val asMap : Map<String,Any> = mongoDocumentToMap(doc)
+            result.add(asMap)
+        }
+        return result
+    }
+
+    fun countFromCollection(collection:String) : Int {
+        val mongoResult  = database.getCollection(collection, Document::class.java)
+        return mongoResult.find().count()
+    }
+    fun paginationFromCollection(collection:String,limit:Int,page:Int) : MutableList<Map<String, Any>> {
+        val mongoResult  = database.getCollection(collection, Document::class.java)
+        val result = ArrayList<Map<String, Any>>()
+        val skip = (page-1) * limit
+        mongoResult.find().skip(skip).limit(limit).forEach { doc ->
             val asMap : Map<String,Any> = mongoDocumentToMap(doc)
             result.add(asMap)
         }

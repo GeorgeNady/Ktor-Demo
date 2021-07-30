@@ -1,9 +1,10 @@
 package com.george
 
 import com.fasterxml.jackson.databind.SerializationFeature
-import com.george.Models.Person.users.User
-import com.george.Routes.AuthRoutes.authRoutes
-import com.george.data.mongo.MongoDataService.Companion.mongoDataService
+import com.george.models.users.User
+import com.george.routes.AuthRoutes.authRoutes
+import com.george.mongodb.MongoDataService.Companion.mongoDataService
+import com.george.routes.PostRoutes.postsRoutes
 import com.george.utiles.Constants.USERS_COLLECTION
 import com.george.utiles.ExtensionFunctionHelper.respondJsonResponse
 import com.george.utiles.JwtService
@@ -30,9 +31,9 @@ fun Application.module(testing: Boolean = false) {
         jackson { enable(SerializationFeature.INDENT_OUTPUT) }
     }
     install(Authentication) {
-        jwt {
+        jwt("jwt") {
             verifier(JwtService.verifier)
-            realm = ""
+            realm = "Note Server"
             validate {
                 val payload = it.payload
                 val email = payload.getClaim("email").asString()
@@ -52,11 +53,13 @@ fun Application.module(testing: Boolean = false) {
 
     routing {
 
-        get("/api/test") {
+        get("/api/v1/test") {
             call.respondJsonResponse(mapOf("message" to "Hello World!"),HTTP_OK)
         }
 
         authRoutes(mongoDataService)
+
+        postsRoutes(mongoDataService)
 
     }
 

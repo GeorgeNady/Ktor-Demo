@@ -3,8 +3,7 @@ package com.george.utiles
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
-import com.george.Models.Person.AuthRequests.RegisterRequest
-import com.george.Models.Person.users.User
+import com.george.models.users.User
 import io.ktor.util.*
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
