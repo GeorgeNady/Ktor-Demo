@@ -91,7 +91,7 @@ object AuthRoutes {
     }
 
     private suspend fun PipelineContext<Unit, ApplicationCall>.okHttpHandler(data:Any, message:String) {
-        call.respondJsonResponse(AuthResponse(true, data as User, message), HTTP_OK)
+        call.respondJsonResponse(AuthResponse(true, data as User, "Bearer $message"), HTTP_OK)
     }
 
     private suspend fun PipelineContext<Unit, ApplicationCall>.badRequestHandler(message:String) {

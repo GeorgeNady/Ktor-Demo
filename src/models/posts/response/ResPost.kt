@@ -8,6 +8,7 @@ data class ResPost(
     @BsonId val id: String,
     val user: ResUser,
     val content: String,
+    val my_react: String? = "",
     val likes_count: Int,
     val likes_users: List<ResUser>? = null,
     val dislike_count: Int,

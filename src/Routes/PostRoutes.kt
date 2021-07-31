@@ -8,9 +8,9 @@ import com.george.models.posts.request.PostRequest
 import com.george.models.posts.response.PostsResponse
 import com.george.models.posts.response.ResPost
 import com.george.models.posts.response.ResUser
-import com.george.utiles.ConsoleHelper.printlnBlue
-import com.george.utiles.ConsoleHelper.printlnGreen
-import com.george.utiles.ConsoleHelper.printlnYellow
+import com.george.utiles.ConsoleHelper.printlnDebug
+import com.george.utiles.ConsoleHelper.printlnSuccess
+import com.george.utiles.ConsoleHelper.printlnInfo
 import com.george.utiles.Constants.POSTS_COLLECTION
 import com.george.utiles.Constants.USERS_COLLECTION
 import com.george.utiles.ExtensionFunctionHelper.respondJsonResponse
@@ -39,15 +39,6 @@ object PostRoutes {
             ////////////////////////////////////////////////////////////
             post<ApplicationLocations.PostCreateRoute> {
 
-                // get content
-                // get user email from jwt
-                // get user from db with his email
-                // get current date
-                // create post data
-                // save post in db
-
-                // return response to the user
-
                 val postRequest = try {
                     call.receive<PostRequest>()
                 } catch (e: Exception) {
@@ -67,13 +58,14 @@ object PostRoutes {
                     val dbPost = DbPost(
                         user_email = email,
                         content = postRequest.content,
+                        my_react = "",
                         likes_count = 0,
                         likes_users_emails = listOf(),
                         dislike_count = 0,
                         dislike_users_emails = listOf(),
                         created_at = currentDate,
                         modified_at = currentDate
-                    ).also { println("{it.toJson()}") }
+                    ).also { println(it.toJson()) }
 
                     val oidOrErrorMessage = db.saveNewDocument(POSTS_COLLECTION, dbPost.toJson())
 
@@ -84,13 +76,14 @@ object PostRoutes {
                         username = userDoc.getValue("username") as String,
                         email = userDoc.getValue("email") as String,
                         phone = userDoc.getValue("phone") as String,
-                    ).also { printlnBlue("$it") }
+                    ).also { printlnDebug("$it") }
 
                     okHttpHandler(
                         ResPost(
                             id = oidOrErrorMessage,
                             user = resUser,
                             content = dbPost.content,
+                            my_react = "",
                             likes_count = dbPost.likes_count,
                             likes_users = listOf(),
                             dislike_count = dbPost.dislike_count,
@@ -112,23 +105,25 @@ object PostRoutes {
             get<ApplicationLocations.AllPostsGetterRoute> {
 
                 val posts = mutableListOf<ResPost>()
-                val page = call.parameters["page"]?.toInt().also { printlnGreen("$it") } ?: 1
+                val page = call.parameters["page"]?.toInt().also { printlnSuccess("$it") } ?: 1
 
                 try {
 
-                    val totalResult = db.countFromCollection(POSTS_COLLECTION)
-                    val postsDoc = db.paginationFromCollection(POSTS_COLLECTION,10,page)
+                    val totalResult = db.countAllDocsFromCollection(POSTS_COLLECTION)
+                    val postsDoc = db.getAllDocFromCollectionPaginated(POSTS_COLLECTION, 10, page)
 
                     postsDoc.forEach { doc ->
-                        val post = doc.toDataClass<DbPost>().also { printlnBlue("$it") }
+                        val post = doc.toDataClass<DbPost>().also { printlnDebug("$it") }
                         val postId = doc.getValue("_id").toString()
-                        val resUser = getResUser(post.user_email, db).also { printlnYellow(it.toJson()) }
-                        val likeUsers = getResUsers(post.likes_users_emails, db).also { printlnYellow("$it") }
-                        val dislikeUsers = getResUsers(post.dislike_users_emails, db).also { printlnYellow("$it") }
-                        posts.add(ResPost(
+                        val resUser = getResUser(post.user_email, db).also { printlnInfo(it.toJson()) }
+                        val likeUsers = getResUsers(post.likes_users_emails, db).also { printlnInfo("$it") }
+                        val dislikeUsers = getResUsers(post.dislike_users_emails, db).also { printlnInfo("$it") }
+                        posts.add(
+                            ResPost(
                                 id = postId,
                                 user = resUser,
                                 content = post.content,
+                                my_react = post.my_react,
                                 likes_count = post.likes_count,
                                 likes_users = likeUsers,
                                 dislike_count = post.dislike_count,
@@ -138,7 +133,7 @@ object PostRoutes {
                             ))
                     }
 
-                    okHttpHandler(posts, "success",page,totalResult)
+                    okHttpHandler(posts, "success", page, totalResult)
 
                 } catch (e: Exception) {
 
@@ -148,6 +143,53 @@ object PostRoutes {
 
             }
 
+            ////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////// GET MY POSTS
+            ////////////////////////////////////////////////////////////
+            get<ApplicationLocations.MyPostsGetterRoute> {
+
+                val posts = mutableListOf<ResPost>()
+                val page = call.parameters["page"]?.toInt().also { printlnSuccess("$it") } ?: 1
+
+
+                try {
+
+                    val email = call.principal<User>()!!.email.also { println(it) }
+
+                    val totalResult = db.countMyDocsFromCollection(email)
+                    val postsDoc = db.getMyDocFromCollectionPaginated(10, page, email)
+
+                    postsDoc.forEach { doc ->
+                        val post = doc.toDataClass<DbPost>().also { printlnDebug("$it") }
+                        val postId = doc.getValue("_id").toString()
+                        val resUser = getResUser(post.user_email, db).also { printlnInfo(it.toJson()) }
+                        val likeUsers = getResUsers(post.likes_users_emails, db).also { printlnInfo("$it") }
+                        val dislikeUsers = getResUsers(post.dislike_users_emails, db).also { printlnInfo("$it") }
+                        posts.add(
+                            ResPost(
+                                id = postId,
+                                user = resUser,
+                                content = post.content,
+                                my_react = post.my_react,
+                                likes_count = post.likes_count,
+                                likes_users = likeUsers,
+                                dislike_count = post.dislike_count,
+                                dislike_users = dislikeUsers,
+                                created_at = post.created_at,
+                                modified_at = post.modified_at
+                            )
+                        )
+                    }
+
+                    okHttpHandler(posts, "success", page, totalResult)
+
+                } catch (e: Exception) {
+
+                    conflictRequestHandler("Some Problems Occurred!: $e")
+
+                }
+
+            }
 
         }
 

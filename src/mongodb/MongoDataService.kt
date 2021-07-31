@@ -1,9 +1,12 @@
 package com.george.mongodb
 
+import com.george.utiles.Constants.POSTS_COLLECTION
+import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
 import org.bson.BsonDocument
 import org.bson.BsonObjectId
 import org.bson.Document
+import org.bson.conversions.Bson
 import org.bson.json.JsonParseException
 import org.bson.types.ObjectId
 
@@ -25,18 +28,50 @@ class MongoDataService(mongoClient: MongoClient, database: String) {
         return result
     }
 
-    fun countFromCollection(collection:String) : Int {
-        val mongoResult  = database.getCollection(collection, Document::class.java)
+    fun countAllDocsFromCollection(collection: String): Int {
+        val mongoResult = database.getCollection(collection, Document::class.java)
         return mongoResult.find().count()
     }
-    fun paginationFromCollection(collection:String,limit:Int,page:Int) : MutableList<Map<String, Any>> {
-        val mongoResult  = database.getCollection(collection, Document::class.java)
+
+    fun getAllDocFromCollectionPaginated(collection: String, limit: Int, page: Int): MutableList<Map<String, Any>> {
+        val mongoResult = database.getCollection(collection, Document::class.java)
         val result = ArrayList<Map<String, Any>>()
-        val skip = (page-1) * limit
-        mongoResult.find().skip(skip).limit(limit).forEach { doc ->
-            val asMap : Map<String,Any> = mongoDocumentToMap(doc)
-            result.add(asMap)
+        val skip = (page - 1) * limit
+        mongoResult
+            .find()
+            .skip(skip)
+            .limit(limit)
+            .sort(BasicDBObject("modified_at", -1))
+            .forEach { doc ->
+                val asMap: Map<String, Any> = mongoDocumentToMap(doc)
+                result.add(asMap)
+            }
+        return result
+    }
+
+    fun countMyDocsFromCollection(email: String): Int {
+        val mongoResult = database.getCollection(POSTS_COLLECTION, Document::class.java)
+        return mongoResult.find().count { doc ->
+            doc.getValue("user_email") == email
         }
+    }
+
+    fun getMyDocFromCollectionPaginated(limit: Int, page: Int, email: String): MutableList<Map<String, Any>> {
+        val mongoResult = database.getCollection(POSTS_COLLECTION, Document::class.java)
+        val result = ArrayList<Map<String, Any>>()
+        val skip = (page - 1) * limit
+        mongoResult
+            .find()
+            .skip(skip)
+            .limit(limit)
+            .sort(BasicDBObject("modified_at", -1))
+            .filter { doc ->
+                doc.getValue("user_email") == email
+            }
+            .forEach { doc ->
+                val asMap: Map<String, Any> = mongoDocumentToMap(doc)
+                result.add(asMap)
+            }
         return result
     }
 

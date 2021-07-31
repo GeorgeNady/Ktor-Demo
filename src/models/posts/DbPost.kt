@@ -8,6 +8,7 @@ data class DbPost(
     @BsonId val id: String? = null,
     val user_email: String,
     val content: String,
+    val my_react: String? = "",
     val likes_count: Int,
     val likes_users_emails: List<String>,
     val dislike_count: Int,
