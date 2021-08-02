@@ -5,7 +5,7 @@ import org.bson.codecs.pojo.annotations.BsonId
 
 @Serializable
 data class DbPost(
-    @BsonId val id: String? = null,
+    @BsonId val _id: String? = null,
     val user_email: String,
     val content: String,
     val my_react: String? = "",

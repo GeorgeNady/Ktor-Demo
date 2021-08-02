@@ -44,7 +44,7 @@ object AuthRoutes {
             )
             val oidOrErrorMessage = db.saveNewDocument(USERS_COLLECTION, doc.toJson())
             val user = User(
-                id = oidOrErrorMessage,
+                _id = oidOrErrorMessage,
                 username = requestRequest.username,
                 email = requestRequest.email,
                 phone = requestRequest.phone,

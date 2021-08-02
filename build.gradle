@@ -54,5 +54,8 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.1.0"
 
+    // Time Ago
+    implementation "com.github.marlonlom:timeago:4.0.3"
+
 
 }

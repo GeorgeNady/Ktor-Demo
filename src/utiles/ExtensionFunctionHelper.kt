@@ -24,7 +24,7 @@ object ExtensionFunctionHelper {
     }
 
     fun userDataExtractor(userDoc: Map<String, Any>) = User(
-        id = userDoc.getValue("_id").toString(),
+        _id = userDoc.getValue("_id").toString(),
         username = userDoc.getValue("username").toString(),
         email = userDoc.getValue("email").toString(),
         phone = userDoc.getValue("phone").toString(),
