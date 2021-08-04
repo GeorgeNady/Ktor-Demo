@@ -13,6 +13,7 @@ object Constants {
     const val CREATE_POST_REQUEST = "$POSTS/create-post" // Create a new Post
     const val GET_POST_REQUEST = "$POSTS/get-post" // get post with {id}
     const val EDIT_POST_REQUEST = "$POSTS/edit-post" // edit post with {id}
+    const val REACT_POST_REQUEST = "$POSTS/react-post" // edit post with {id}
     const val DELETE_POST_REQUEST = "$POSTS/delete-post" // delete post with {id}
     const val GET_POSTS_REQUEST = POSTS // get all posts
     const val GET_MY_POSTS_REQUEST = "$POSTS/my-posts" // get my posts

@@ -43,7 +43,9 @@ dependencies {
     implementation "org.mongodb:mongodb-driver:3.6.3"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1"
-    implementation "io.github.cdimascio:dotenv-kotlin:6.2.2"
+    // implementation "io.ktor:ktor-client-cio:$ktor_version"
+    // implementation "io.ktor:ktor-client-logging:$ktor_version"
+    // implementation "ch.qos.logback:logback-classic:$logback_version"
 
     // Authentication
     implementation "io.ktor:ktor-auth:$ktor_version"
@@ -57,5 +59,6 @@ dependencies {
     // Time Ago
     implementation "com.github.marlonlom:timeago:4.0.3"
 
-
+    // testImplementation "junit:junit:4.13"
+    // testImplementation project(":e2e")
 }

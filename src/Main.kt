@@ -1,5 +1,13 @@
 package com.george
 
+import io.ktor.client.*
+import io.ktor.client.features.*
+import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import kotlinx.coroutines.runBlocking
+import java.io.File
+
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.george.models.users.User
 import com.george.routes.AuthRoutes.authRoutes
@@ -50,16 +58,38 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
+    // Upload a file
+    /*runBlocking {
+        val client = HttpClient(CIO)
+
+        val response: HttpResponse = client.submitFormWithBinaryData(
+            url = "http://localhost:6060/upload",
+            formData = formData {
+                append("description", "Ktor logo")
+                append("image", File("ktor_logo.png").readBytes(), Headers.build {
+                    append(HttpHeaders.ContentType, "image/png")
+                    append(HttpHeaders.ContentDisposition, "filename=ktor_logo.png")
+                })
+            }
+        ) {
+            onUpload { bytesSentTotal, contentLength ->
+                println("Sent $bytesSentTotal bytes from $contentLength")
+            }
+        }
+
+        println(response.readText())
+    }*/
 
     routing {
 
         get("/api/v1/test") {
-            call.respondJsonResponse(mapOf("message" to "Hello World!"),HTTP_OK)
+            call.respondJsonResponse(mapOf("message" to "Hello World!"), HTTP_OK)
         }
 
         authRoutes(mongoDataService)
 
         postsRoutes(mongoDataService)
+
 
     }
 

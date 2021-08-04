@@ -6,7 +6,7 @@ import org.bson.codecs.pojo.annotations.BsonId
 
 @Serializable
 data class ResUser(
-    @BsonId val id: String,
+    @BsonId val _id: String,
     val username: String,
     val email: String,
     val phone: String,

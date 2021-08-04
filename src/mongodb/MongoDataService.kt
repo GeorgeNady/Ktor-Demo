@@ -1,12 +1,15 @@
 package com.george.mongodb
 
+import com.george.utiles.ConsoleHelper
 import com.george.utiles.Constants.POSTS_COLLECTION
+import com.george.utiles.ExtensionFunctionHelper.toJson
 import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
-import org.bson.BsonDocument
-import org.bson.BsonObjectId
-import org.bson.Document
+import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.model.Updates
+import org.bson.*
 import org.bson.conversions.Bson
+import com.mongodb.client.model.Updates.*
 import org.bson.json.JsonParseException
 import org.bson.types.ObjectId
 
