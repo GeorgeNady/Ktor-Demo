@@ -1,18 +1,13 @@
 package com.george
 
-import io.ktor.client.*
-import io.ktor.client.features.*
-import io.ktor.client.request.forms.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import kotlinx.coroutines.runBlocking
-import java.io.File
-
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.george.routes.MultiPartsRoutes.multiPartsRoutes
 import com.george.models.users.User
 import com.george.routes.AuthRoutes.authRoutes
 import com.george.mongodb.MongoDataService.Companion.mongoDataService
 import com.george.routes.PostRoutes.postsRoutes
+import com.george.routes.TestRoutes.testRoutes
+import com.george.routes.UsersRoutes.usersRoutes
 import com.george.utiles.Constants.USERS_COLLECTION
 import com.george.utiles.ExtensionFunctionHelper.respondJsonResponse
 import com.george.utiles.JwtService
@@ -26,6 +21,9 @@ import io.ktor.gson.*
 import io.ktor.features.*
 import io.ktor.jackson.jackson
 import io.ktor.locations.*
+import io.ktor.response.*
+import io.ktor.sessions.*
+import models.MySession
 
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
@@ -34,6 +32,13 @@ fun main(args: Array<String>): Unit = EngineMain.main(args)
 fun Application.module(testing: Boolean = false) {
 
     install(Locations)
+    install(DefaultHeaders)
+    install(CallLogging)
+    install(Sessions) {
+        cookie<MySession>("MY_SESSION") {
+            cookie.extensions["SameSite"] = "lax"
+        }
+    }
     install(ContentNegotiation) {
         gson {}
         jackson { enable(SerializationFeature.INDENT_OUTPUT) }
@@ -50,6 +55,7 @@ fun Application.module(testing: Boolean = false) {
                     _id = userDoc!!.getValue("_id").toString(),
                     username = userDoc.getValue("username").toString(),
                     email = userDoc.getValue("email").toString(),
+                    avatar = userDoc.get("avatar").toString(),
                     phone = userDoc.getValue("phone").toString(),
                     hashPassword = userDoc.getValue("hashPassword").toString()
                 )
@@ -58,37 +64,17 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
-    // Upload a file
-    /*runBlocking {
-        val client = HttpClient(CIO)
-
-        val response: HttpResponse = client.submitFormWithBinaryData(
-            url = "http://localhost:6060/upload",
-            formData = formData {
-                append("description", "Ktor logo")
-                append("image", File("ktor_logo.png").readBytes(), Headers.build {
-                    append(HttpHeaders.ContentType, "image/png")
-                    append(HttpHeaders.ContentDisposition, "filename=ktor_logo.png")
-                })
-            }
-        ) {
-            onUpload { bytesSentTotal, contentLength ->
-                println("Sent $bytesSentTotal bytes from $contentLength")
-            }
-        }
-
-        println(response.readText())
-    }*/
-
     routing {
 
-        get("/api/v1/test") {
-            call.respondJsonResponse(mapOf("message" to "Hello World!"), HTTP_OK)
-        }
+        testRoutes()
 
         authRoutes(mongoDataService)
 
         postsRoutes(mongoDataService)
+
+        usersRoutes(mongoDataService)
+
+        multiPartsRoutes()
 
 
     }

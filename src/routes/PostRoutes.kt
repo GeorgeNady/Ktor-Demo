@@ -9,6 +9,9 @@ import com.george.models.posts.response.PostsResponse
 import com.george.models.posts.response.ResPost
 import com.george.models.posts.response.ResUser
 import com.george.models.react.ReactRequest
+import com.george.utiles.ApplicationLocations.PostCreateRoute
+import com.george.utiles.ApplicationLocations.AllPostsGetterRoute
+import com.george.utiles.ApplicationLocations.MyPostsGetterRoute
 import com.george.utiles.ConsoleHelper.printlnDebug
 import com.george.utiles.ConsoleHelper.printlnError
 import com.george.utiles.ConsoleHelper.printlnSuccess
@@ -21,6 +24,7 @@ import com.george.utiles.Constants.USERS_COLLECTION
 import com.george.utiles.DateHelper.getTimeAgo
 import com.george.utiles.ExtensionFunctionHelper.respondJsonResponse
 import com.george.utiles.ExtensionFunctionHelper.toJson
+import com.george.utiles.PusherConfiguration.pusher
 import com.george.utiles.StatusCodesHelper.HTTP_BAD_REQUEST
 import com.george.utiles.StatusCodesHelper.HTTP_CONFLICT
 import com.george.utiles.StatusCodesHelper.HTTP_NOT_FOUND
@@ -32,7 +36,6 @@ import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.locations.*
 import io.ktor.request.*
-import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.util.pipeline.*
 import java.util.*
@@ -46,7 +49,7 @@ object PostRoutes {
             ////////////////////////////////////////////////////////////
             //////////////////////////////////////////////// CREATE POST
             ////////////////////////////////////////////////////////////
-            post<ApplicationLocations.PostCreateRoute> {
+            post<PostCreateRoute> {
 
                 val postRequest = try {
                     call.receive<PostRequest>()
@@ -83,20 +86,22 @@ object PostRoutes {
                     val createdAt = TimeAgo.using(dbPost.created_at.toLong()).also { printlnError(it) }
                     val modifiedAt = TimeAgo.using(dbPost.modified_at.toLong()).also { printlnError(it) }
 
-                    okHttpHandler(
-                        ResPost(
-                            _id = oidOrErrorMessage,
-                            user = resUser,
-                            content = dbPost.content,
-                            my_react = "",
-                            likes_count = dbPost.likes_count,
-                            likes_users = listOf(),
-                            dislike_count = dbPost.dislike_count,
-                            dislike_users = listOf(),
-                            created_at = createdAt,
-                            modified_at = modifiedAt
-                        ), "Post Added Successfully"
+                    val resPost = ResPost(
+                        _id = oidOrErrorMessage,
+                        user = resUser,
+                        content = dbPost.content,
+                        my_react = "",
+                        likes_count = dbPost.likes_count,
+                        likes_users = listOf(),
+                        dislike_count = dbPost.dislike_count,
+                        dislike_users = listOf(),
+                        created_at = createdAt,
+                        modified_at = modifiedAt
                     )
+
+                    okHttpHandler(resPost, "Post Added Successfully")
+                    pusher.trigger("my-channel","my-event", resPost)
+
 
                 } catch (e: Exception) {
                     printlnError("$e")
@@ -108,7 +113,7 @@ object PostRoutes {
             ////////////////////////////////////////////////////////////
             ////////////////////////////////////////////// GET ALL POSTS
             ////////////////////////////////////////////////////////////
-            get<ApplicationLocations.AllPostsGetterRoute> {
+            get<AllPostsGetterRoute> {
 
                 val posts = mutableListOf<ResPost>()
                 val page = call.parameters["page"]?.toInt().also { printlnSuccess("$it") } ?: 1
@@ -153,7 +158,7 @@ object PostRoutes {
             ////////////////////////////////////////////////////////////
             /////////////////////////////////////////////// GET MY POSTS
             ////////////////////////////////////////////////////////////
-            get<ApplicationLocations.MyPostsGetterRoute> {
+            get<MyPostsGetterRoute> {
 
                 val posts = mutableListOf<ResPost>()
                 val page = call.parameters["page"]?.toInt().also { printlnSuccess("$it") } ?: 1

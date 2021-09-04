@@ -27,6 +27,7 @@ object ExtensionFunctionHelper {
         _id = userDoc.getValue("_id").toString(),
         username = userDoc.getValue("username").toString(),
         email = userDoc.getValue("email").toString(),
+        avatar = userDoc.getValue("avatar").toString(),
         phone = userDoc.getValue("phone").toString(),
         hashPassword = userDoc.getValue("hashPassword").toString()
     )

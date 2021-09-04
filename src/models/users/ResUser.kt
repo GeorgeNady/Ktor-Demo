@@ -9,6 +9,7 @@ data class ResUser(
     @BsonId val _id: String,
     val username: String,
     val email: String,
+    val avatar: String,
     val phone: String,
     val hashPassword: String?
 )

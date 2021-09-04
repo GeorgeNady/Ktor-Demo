@@ -1,10 +1,11 @@
 package com.george.routes
 
 import com.george.models.authRequests.request.LoginRequest
-import com.george.models.users.User
 import com.george.models.authRequests.request.RegisterRequest
 import com.george.models.authRequests.response.AuthResponse
+import com.george.models.users.User
 import com.george.mongodb.MongoDataService
+import com.george.utiles.ApplicationLocations
 import com.george.utiles.Constants.USERS_COLLECTION
 import com.george.utiles.ExtensionFunctionHelper.respondJsonResponse
 import com.george.utiles.ExtensionFunctionHelper.toJson
@@ -39,6 +40,7 @@ object AuthRoutes {
             val doc = User(
                 username = requestRequest.username,
                 email = requestRequest.email,
+                avatar = "https://res.cloudinary.com/ktordemoapp/image/upload/v1630630817/default_avatar.png",
                 phone = requestRequest.phone,
                 hashPassword = createHash(requestRequest.password)
             )
@@ -47,6 +49,7 @@ object AuthRoutes {
                 _id = oidOrErrorMessage,
                 username = requestRequest.username,
                 email = requestRequest.email,
+                avatar = "https://res.cloudinary.com/ktordemoapp/image/upload/v1630630817/default_avatar.png",
                 phone = requestRequest.phone,
                 hashPassword = createHash(requestRequest.password)
             )
