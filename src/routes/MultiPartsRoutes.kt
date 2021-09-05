@@ -54,23 +54,21 @@ object MultiPartsRoutes {
 
             }
 
+        }
 
-            ////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////// DOWNLOAD FILE
-            ////////////////////////////////////////////////////////////
-            get("$DOWNLOAD_MULTI_PARTS_REQUEST/{name}") {
-                // get filename from request url
-                val filename = call.parameters["name"]!!
-                // construct reference to file
-                // ideally this would use a different filename
-                val file = File("D:\\$filename")
-                if(file.exists()) {
-                    call.respondFile(file)
-                }
-                else call.respond(HttpStatusCode.NotFound)
+        ////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////// DOWNLOAD FILE
+        ////////////////////////////////////////////////////////////
+        get("$DOWNLOAD_MULTI_PARTS_REQUEST/{name}") {
+            // get filename from request url
+            val filename = call.parameters["name"]!!
+            // construct reference to file
+            // ideally this would use a different filename
+            val file = File("D:\\$filename")
+            if(file.exists()) {
+                call.respondFile(file)
             }
-
-
+            else call.respond(HttpStatusCode.NotFound)
         }
 
     }

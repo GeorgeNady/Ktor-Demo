@@ -24,7 +24,7 @@ import org.bson.types.ObjectId
 
 object AuthRoutes {
 
-    fun Route.authRoutes(db: MongoDataService) {
+    fun Route.authRoutes(db: MongoDataService,host:String,port:String) {
 
         ////////////////////////////////////////////////////////////
         ///////////////////// REGISTER_REQUEST /////////////////////
@@ -40,7 +40,7 @@ object AuthRoutes {
             val doc = User(
                 username = requestRequest.username,
                 email = requestRequest.email,
-                avatar = "https://res.cloudinary.com/ktordemoapp/image/upload/v1630630817/default_avatar.png",
+                avatar = "http://$host:$port/api/v1/download/default_avatar.jpg",
                 phone = requestRequest.phone,
                 hashPassword = createHash(requestRequest.password)
             )
@@ -49,7 +49,7 @@ object AuthRoutes {
                 _id = oidOrErrorMessage,
                 username = requestRequest.username,
                 email = requestRequest.email,
-                avatar = "https://res.cloudinary.com/ktordemoapp/image/upload/v1630630817/default_avatar.png",
+                avatar = doc.avatar,
                 phone = requestRequest.phone,
                 hashPassword = createHash(requestRequest.password)
             )

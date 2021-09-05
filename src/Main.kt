@@ -31,6 +31,9 @@ fun main(args: Array<String>): Unit = EngineMain.main(args)
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
 
+    val host = environment.config.propertyOrNull("ktor.deployment.host")?.getString() ?: "192.168.1.200"
+    val port = environment.config.propertyOrNull("ktor.deployment.port")?.getString() ?: "6060"
+
     install(Locations)
     install(DefaultHeaders)
     install(CallLogging)
@@ -50,7 +53,7 @@ fun Application.module(testing: Boolean = false) {
             validate {
                 val payload = it.payload
                 val email = payload.getClaim("email").asString()
-                val userDoc = mongoDataService.getDocumentByEmail(USERS_COLLECTION,email)
+                val userDoc = mongoDataService.getDocumentByEmail(USERS_COLLECTION, email)
                 val user = User(
                     _id = userDoc!!.getValue("_id").toString(),
                     username = userDoc.getValue("username").toString(),
@@ -68,14 +71,13 @@ fun Application.module(testing: Boolean = false) {
 
         testRoutes()
 
-        authRoutes(mongoDataService)
+        authRoutes(mongoDataService, host, port)
 
         postsRoutes(mongoDataService)
 
         usersRoutes(mongoDataService)
 
         multiPartsRoutes()
-
 
     }
 

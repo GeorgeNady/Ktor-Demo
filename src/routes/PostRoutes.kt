@@ -81,7 +81,7 @@ object PostRoutes {
                     // GET USER
                     val userDoc = db.getDocumentByEmail(USERS_COLLECTION, dbPost.user_email)!!
                     val user = userDoc.toDataClass<User>().also { printlnDebug("$it") }
-                    val resUser = ResUser(user._id!!, user.username, user.email, user.phone)
+                    val resUser = ResUser(user._id!!, user.username, user.avatar, user.email, user.phone)
 
                     val createdAt = TimeAgo.using(dbPost.created_at.toLong()).also { printlnError(it) }
                     val modifiedAt = TimeAgo.using(dbPost.modified_at.toLong()).also { printlnError(it) }
@@ -299,7 +299,7 @@ object PostRoutes {
                                 // GET USER
                                 val userDoc = db.getDocumentByEmail(USERS_COLLECTION, dbPost.user_email)!!
                                 val user = userDoc.toDataClass<User>().also { printlnDebug("$it") }
-                                val resUser = ResUser(user._id!!, user.username, user.email, user.phone)
+                                val resUser = ResUser(user._id!!, user.username, user.avatar, user.email, user.phone)
                                 val likeUsers = getResUsers(dbPost.likes_users_emails, db).also { printlnInfo("$it") }
                                 val dislikeUsers =
                                     getResUsers(dbPost.dislike_users_emails, db).also { printlnInfo("$it") }
@@ -397,7 +397,7 @@ object PostRoutes {
                             // GET USER
                             val userDoc = db.getDocumentByEmail(USERS_COLLECTION, dbPost.user_email)!!
                             val user = userDoc.toDataClass<User>().also { printlnDebug("$it") }
-                            val resUser = ResUser(user._id!!, user.username, user.email, user.phone)
+                            val resUser = ResUser(user._id!!, user.username, user.avatar, user.email, user.phone)
                             val likeUsersData = getResUsers(updates.likes_users_emails, db).also { printlnInfo("$it") }
                             val dislikeUsersData =
                                 getResUsers(updates.dislike_users_emails, db).also { printlnInfo("$it") }
@@ -465,6 +465,7 @@ object PostRoutes {
             val resUser = ResUser(
                 _id = user._id!!,
                 username = user.username,
+                avatar = user.avatar,
                 email = user.email,
                 phone = user.phone
             )
@@ -479,6 +480,7 @@ object PostRoutes {
         return ResUser(
             _id = user._id!!,
             username = user.username,
+            avatar = user.avatar,
             email = user.email,
             phone = user.phone
         )
