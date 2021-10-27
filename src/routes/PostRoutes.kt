@@ -58,7 +58,6 @@ object PostRoutes {
                     return@post
                 }
 
-
                 try {
 
                     val email = call.principal<User>()!!.email.also { println(it) }

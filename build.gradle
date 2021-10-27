@@ -25,6 +25,12 @@ sourceSets {
     test.resources.srcDirs = ['testresources']
 }
 
+// we have to add this task
+// heroku need this to create gradle project build pack
+tasks.create("satge") {
+    dependsOn("installDist")
+}
+
 repositories {
     mavenLocal()
     jcenter()
